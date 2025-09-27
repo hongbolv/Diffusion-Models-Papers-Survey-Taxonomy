@@ -128,6 +128,8 @@ Sampling in Around 10 Step](https://arxiv.org/abs/2206.00927)
 [Diffusion-Sharpening: Fine-tuning Diffusion Models with Denoising Trajectory Sharpening](https://arxiv.org/abs/2502.12146)
 
 [MMaDA: Multimodal Large Diffusion Language Models](https://arxiv.org/abs/2505.15809)
+
+[Revolutionizing reinforcement learning framework for diffusion large language models](https://arxiv.org/abs/2509.06949)
 <p id="1.1.2"></p >
 
 #### 1.2 Learning-Based Sampling
@@ -265,6 +267,8 @@ Thermodynamics.](https://openreview.net/forum?id=rkbVIoZdWH)
 for Discrete Denoising Models](https://arxiv.org/abs/2205.14987)
 
 [MMaDA: Multimodal Large Diffusion Language Models](https://arxiv.org/abs/2505.15809)
+
+[Revolutionizing reinforcement learning framework for diffusion large language models](https://arxiv.org/abs/2509.06949)
 <p id="1.4"></p >
 
 ### 4. Diffusion with (Multimodal) LLM
@@ -294,6 +298,8 @@ for Discrete Denoising Models](https://arxiv.org/abs/2205.14987)
 [Diffusion-Sharpening: Fine-tuning Diffusion Models with Denoising Trajectory Sharpening](https://arxiv.org/abs/2502.12146)
 
 [MMaDA: Multimodal Large Diffusion Language Models](https://arxiv.org/abs/2505.15809)
+
+[Revolutionizing reinforcement learning framework for diffusion large language models](https://arxiv.org/abs/2509.06949)
 <p id="2"></p>
 
 ## Application Taxonomy
@@ -333,6 +339,7 @@ for Discrete Denoising Models](https://arxiv.org/abs/2205.14987)
     - [Rectified Diffusion: Straightness Is Not Your Need in Rectified Flow](https://arxiv.org/abs/2410.07303)
     - [Diffusion-Sharpening: Fine-tuning Diffusion Models with Denoising Trajectory Sharpening](https://arxiv.org/abs/2502.12146)
     - [MMaDA: Multimodal Large Diffusion Language Models](https://arxiv.org/abs/2505.15809)
+    - [Revolutionizing reinforcement learning framework for diffusion large language models](https://arxiv.org/abs/2509.06949)
 <p id="2.1.2"></p >
 
   - Semantic Segmentation
@@ -386,6 +393,7 @@ for Discrete Denoising Models](https://arxiv.org/abs/2205.14987)
   - [Analog Bits: Generating Discrete Data using Diffusion Models with Self-Conditioning](https://arxiv.org/abs/2208.04202)
   - [DiffuSeq: Sequence to Sequence Text Generation with Diffusion Models](https://arxiv.org/abs/2210.08933)
   - [MMaDA: Multimodal Large Diffusion Language Models](https://arxiv.org/abs/2505.15809)
+  - [Revolutionizing reinforcement learning framework for diffusion large language models](https://arxiv.org/abs/2509.06949)
  
 <p id="2.3"></p>
 
@@ -438,6 +446,7 @@ for Discrete Denoising Models](https://arxiv.org/abs/2205.14987)
     - [Rectified Diffusion: Straightness Is Not Your Need in Rectified Flow](https://arxiv.org/abs/2410.07303)
     - [Diffusion-Sharpening: Fine-tuning Diffusion Models with Denoising Trajectory Sharpening](https://arxiv.org/abs/2502.12146)
     - [MMaDA: Multimodal Large Diffusion Language Models](https://arxiv.org/abs/2505.15809)
+    - [Revolutionizing reinforcement learning framework for diffusion large language models](https://arxiv.org/abs/2509.06949)
 <p id="2.4.2"></p >
 
   - Text-to-3D Generation
