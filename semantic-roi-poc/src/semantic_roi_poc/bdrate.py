@@ -1,4 +1,4 @@
-"""Stage D (part 1): Bjontegaard-Delta rate / PSNR computation.
+"""Stage D (part 1): Bjøntegaard-Delta rate / PSNR computation.
 
 BD-rate summarises the average bitrate difference between two encoders over a
 shared quality range (negative = the test codec saves bitrate at equal

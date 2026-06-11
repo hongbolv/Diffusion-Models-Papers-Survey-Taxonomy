@@ -13,7 +13,7 @@ The package is organised by the PoC stages:
 * Stage C -- :mod:`semantic_roi_poc.encode`           (ROI-aware HEVC encoding via ffmpeg/libx265)
               :mod:`semantic_roi_poc.classic_saliency` (spectral-residual control baseline)
 * Stage D -- :mod:`semantic_roi_poc.metrics`          (PSNR/SSIM, ROI-masked, optional VMAF)
-              :mod:`semantic_roi_poc.bdrate`           (Bjontegaard BD-rate)
+              :mod:`semantic_roi_poc.bdrate`           (Bjøntegaard BD-rate)
 
 The orchestration lives in :mod:`semantic_roi_poc.pipeline` and the command
 line entry point in :mod:`semantic_roi_poc.cli`.

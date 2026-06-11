@@ -1,4 +1,4 @@
-"""Stage C control: a classic, training-free saliency baseline.
+"""Stage C comparison group: a classic, training-free saliency baseline.
 
 We use the Spectral Residual method (Hou & Zhang, CVPR 2007), implemented in
 pure NumPy. It is the fair "traditional saliency" comparison group required by

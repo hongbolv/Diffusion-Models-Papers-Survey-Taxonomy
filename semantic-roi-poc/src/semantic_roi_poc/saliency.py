@@ -257,9 +257,12 @@ class DiffusersAttentionExtractor:
         ah, aw = arr.shape
         ys = np.linspace(0, ah - 1, h)
         xs = np.linspace(0, aw - 1, w)
-        y0 = np.floor(ys).astype(int); y1 = np.minimum(y0 + 1, ah - 1)
-        x0 = np.floor(xs).astype(int); x1 = np.minimum(x0 + 1, aw - 1)
-        wy = (ys - y0)[:, None]; wx = (xs - x0)[None, :]
+        y0 = np.floor(ys).astype(int)
+        y1 = np.minimum(y0 + 1, ah - 1)
+        x0 = np.floor(xs).astype(int)
+        x1 = np.minimum(x0 + 1, aw - 1)
+        wy = (ys - y0)[:, None]
+        wx = (xs - x0)[None, :]
         top = arr[y0][:, x0] * (1 - wx) + arr[y0][:, x1] * wx
         bot = arr[y1][:, x0] * (1 - wx) + arr[y1][:, x1] * wx
         return top * (1 - wy) + bot * wy
