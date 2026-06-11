@@ -29,7 +29,7 @@ inaccurate or the gain is ~0.
 
 | Stage | Module | What it does |
 |-------|--------|--------------|
-| A | `saliency.py` | Generate image + saliency map. `SyntheticSaliency` (no deps, a known-ROI fixture) or `DiffusersAttentionExtractor` (real Stable Diffusion cross-attention). |
+| A | `saliency.py` | Generate image + saliency map. `SyntheticSaliency` (no deps, a known-ROI fixture) or `DiffusersAttentionExtractor` (real Stable Diffusion / SDXL cross-attention; model family auto-detected). |
 | B | `qpmap.py` | Pool saliency to codec blocks → **zero-mean** per-block QP offsets (move bits, don't add them). |
 | C | `encode.py`, `classic_saliency.py` | Encode baseline / attention-ROI / classic-ROI with ffmpeg `addroi` in **CRF mode**; spectral-residual control. |
 | D | `metrics.py`, `bdrate.py` | ROI-masked & full PSNR/SSIM (VMAF if `libvmaf` present), Bjøntegaard BD-rate. |
@@ -64,6 +64,20 @@ python -m semantic_roi_poc.cli --prompts examples/prompts.jsonl \
     --model runwayml/stable-diffusion-v1-5 --device cuda \
     --crfs 22 26 30 34 --out roi_report.json
 ```
+
+SDXL (the mainstream, higher-quality model — more convincing evidence):
+
+```bash
+python -m semantic_roi_poc.cli --prompts examples/prompts.jsonl \
+    --model stabilityai/stable-diffusion-xl-base-1.0 --device cuda \
+    --crfs 22 26 30 34 --out roi_report.json
+```
+
+The model family (classic Stable Diffusion 1.5/2.1 vs SDXL) is auto-detected, and
+generation size and the aggregated cross-attention resolutions default
+accordingly (512 / `(16,32)` for SD, 1024 / `(32,64)` for SDXL). Override with
+`--height/--width` and `--layer-resolutions` if needed. SDXL needs more VRAM
+(≈12–16 GB recommended).
 
 The report's key field is `bd_rate_roi.attention` (negative = bitrate saving at
 equal ROI quality).

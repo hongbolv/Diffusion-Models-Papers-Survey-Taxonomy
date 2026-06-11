@@ -3,11 +3,15 @@
 Two providers share one interface (:class:`SaliencyResult`):
 
 * :class:`DiffusersAttentionExtractor` -- the *real* method. It runs a
-  Stable Diffusion text-to-image generation and aggregates the cross-attention
-  maps of the chosen subject tokens over a set of denoising steps and U-Net
-  layers, producing a saliency map *for free* as a by-product of generation.
-  Requires ``torch`` + ``diffusers`` + a GPU; imported lazily so the rest of
-  the package works without them.
+  text-to-image generation and aggregates the cross-attention maps of the
+  chosen subject tokens over a set of denoising steps and U-Net layers,
+  producing a saliency map *for free* as a by-product of generation. It
+  supports both classic Stable Diffusion (1.5 / 2.1) and **SDXL**, which share
+  the U-Net + CLIP cross-attention architecture; SDXL differs in default
+  generation size, attention token-grid resolutions, and its second
+  (OpenCLIP) tokenizer. The model type is auto-detected and sensible defaults
+  are resolved per family. Requires ``torch`` + ``diffusers`` + a GPU;
+  imported lazily so the rest of the package works without them.
 
 * :class:`SyntheticSaliency` -- a dependency-free fixture that renders a
   subject (a bright shape) over a textured background and returns an exact
@@ -86,20 +90,33 @@ class SyntheticSaliency:
 
 
 class DiffusersAttentionExtractor:
-    """Generate an image with Stable Diffusion and extract attention saliency.
+    """Generate an image with Stable Diffusion / SDXL and extract attention saliency.
+
+    Both the classic Stable Diffusion (1.5 / 2.1) and SDXL families share the
+    U-Net + CLIP cross-attention architecture, so the same recorder works for
+    both. The model family is auto-detected when the pipeline is loaded
+    (SDXL exposes a second tokenizer), and ``height``/``width``/
+    ``layer_resolutions`` default to family-appropriate values when left as
+    ``None``.
 
     Parameters
     ----------
     model_id:
-        Hugging Face model id of a Stable Diffusion pipeline.
+        Hugging Face model id of a Stable Diffusion or SDXL pipeline.
     device:
         ``"cuda"`` (recommended) or ``"cpu"``.
     steps:
         Number of denoising steps.
+    height, width:
+        Generation size. ``None`` (default) resolves per family: ``512`` for
+        classic Stable Diffusion, ``1024`` for SDXL.
     layer_resolutions:
         Cross-attention spatial resolutions (token-grid side lengths) to
-        aggregate. Mid resolutions such as 16 and 32 carry the cleanest
-        semantic localisation; very coarse/fine layers are noisier.
+        aggregate. ``None`` (default) resolves per family: ``(16, 32)`` for
+        classic Stable Diffusion, ``(32, 64)`` for SDXL (its U-Net drops the
+        highest-frequency attention block and runs on a larger latent). Mid
+        resolutions carry the cleanest semantic localisation; very coarse/fine
+        layers are noisier.
     step_range:
         Fractional ``(start, end)`` window of denoising steps to average over.
         Mid/late steps localise the subject better than the first noisy steps.
@@ -111,9 +128,9 @@ class DiffusersAttentionExtractor:
         device: str = "cuda",
         steps: int = 30,
         guidance_scale: float = 7.5,
-        height: int = 512,
-        width: int = 512,
-        layer_resolutions: tuple[int, ...] = (16, 32),
+        height: int | None = None,
+        width: int | None = None,
+        layer_resolutions: tuple[int, ...] | None = None,
         step_range: tuple[float, float] = (0.2, 0.9),
     ):
         self.model_id = model_id
@@ -125,20 +142,40 @@ class DiffusersAttentionExtractor:
         self.layer_resolutions = layer_resolutions
         self.step_range = step_range
         self._pipe = None
+        self.is_sdxl: bool | None = None
+
+    # Family-appropriate defaults, applied to any attribute left as ``None``.
+    _DEFAULTS = {
+        "sd": {"size": 512, "layer_resolutions": (16, 32)},
+        "sdxl": {"size": 1024, "layer_resolutions": (32, 64)},
+    }
+
+    def _resolve_defaults(self) -> None:
+        """Fill in ``None`` size / layer-resolution fields per detected family."""
+        family = "sdxl" if self.is_sdxl else "sd"
+        defaults = self._DEFAULTS[family]
+        if self.height is None:
+            self.height = defaults["size"]
+        if self.width is None:
+            self.width = defaults["size"]
+        if self.layer_resolutions is None:
+            self.layer_resolutions = defaults["layer_resolutions"]
 
     def _load(self):
         if self._pipe is not None:
             return
-        import torch  # noqa: F401  (validated lazily)
-        from diffusers import StableDiffusionPipeline
-
         import torch as _torch
+        from diffusers import AutoPipelineForText2Image
 
         dtype = _torch.float16 if self.device.startswith("cuda") else _torch.float32
-        pipe = StableDiffusionPipeline.from_pretrained(self.model_id, torch_dtype=dtype)
+        pipe = AutoPipelineForText2Image.from_pretrained(self.model_id, torch_dtype=dtype)
         pipe = pipe.to(self.device)
-        pipe.safety_checker = None
+        # SDXL (and other multi-encoder pipelines) expose a second tokenizer.
+        self.is_sdxl = getattr(pipe, "tokenizer_2", None) is not None
+        if hasattr(pipe, "safety_checker"):
+            pipe.safety_checker = None
         self._pipe = pipe
+        self._resolve_defaults()
 
     def _subject_token_indices(self, prompt: str, subject: str) -> list[int]:
         """Token positions (in the CLIP sequence) for the subject words."""
@@ -179,8 +216,15 @@ class DiffusersAttentionExtractor:
             v = attn.head_to_batch_dim(v)
             probs = attn.get_attention_scores(q, k, attention_mask)
             if is_cross:
-                res = int(round(probs.shape[1] ** 0.5))
-                if res in self.layer_resolutions and start_step <= step_counter["i"] < end_step:
+                hw = probs.shape[1]
+                res = int(round(hw ** 0.5))
+                # Only square token grids correspond to a spatial saliency map;
+                # guard against non-square / non-spatial query lengths.
+                if (
+                    res * res == hw
+                    and res in self.layer_resolutions
+                    and start_step <= step_counter["i"] < end_step
+                ):
                     p = probs.detach().float().mean(0).cpu().numpy()  # (hw, tokens)
                     attn_maps.append((res, p))
             out = torch.bmm(probs, v)

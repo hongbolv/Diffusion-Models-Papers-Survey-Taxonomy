@@ -61,8 +61,26 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--model", default="runwayml/stable-diffusion-v1-5")
     p.add_argument("--device", default="cuda")
     p.add_argument("--steps", type=int, default=30)
-    p.add_argument("--height", type=int, default=512)
-    p.add_argument("--width", type=int, default=512)
+    p.add_argument(
+        "--height",
+        type=int,
+        default=None,
+        help="generation height; default auto (512 for SD, 1024 for SDXL)",
+    )
+    p.add_argument(
+        "--width",
+        type=int,
+        default=None,
+        help="generation width; default auto (512 for SD, 1024 for SDXL)",
+    )
+    p.add_argument(
+        "--layer-resolutions",
+        type=int,
+        nargs="+",
+        default=None,
+        help="cross-attention token-grid sizes to aggregate; "
+        "default auto ((16,32) for SD, (32,64) for SDXL)",
+    )
 
     p.add_argument("--crfs", type=int, nargs="+", default=[22, 26, 30, 34])
     p.add_argument("--block-size", type=int, default=64)
@@ -82,8 +100,11 @@ def _iter_results(args):
     from .saliency import DiffusersAttentionExtractor, SyntheticSaliency
 
     if args.synthetic:
+        # Synthetic fixture needs concrete sizes; default to 256 when unset.
+        h = args.height or 256
+        w = args.width or 256
         for i in range(args.num_synthetic):
-            yield SyntheticSaliency(args.height, args.width, seed=i).generate(
+            yield SyntheticSaliency(h, w, seed=i).generate(
                 f"synthetic-{i}"
             )
     else:
@@ -93,6 +114,9 @@ def _iter_results(args):
             steps=args.steps,
             height=args.height,
             width=args.width,
+            layer_resolutions=(
+                tuple(args.layer_resolutions) if args.layer_resolutions else None
+            ),
         )
         for row in _load_prompts(args.prompts):
             prompt = row["prompt"] if isinstance(row, dict) else str(row)
