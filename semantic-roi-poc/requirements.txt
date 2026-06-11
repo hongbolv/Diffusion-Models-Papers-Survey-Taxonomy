@@ -1,0 +1,12 @@
+# Core dependencies (Stage B/C/D: QP mapping, encoding, metrics).
+numpy>=1.23
+pillow>=9.0
+
+# Stage A real attention extraction is optional and heavy; install separately:
+#   pip install torch diffusers transformers accelerate
+# A GPU is strongly recommended for Stable Diffusion generation.
+
+# External tools (not pip-installable): ffmpeg with libx265/libx264.
+#   - addroi-based ROI QP offsets require a rate-controlled mode (CRF).
+#   - Full VMAF additionally needs an ffmpeg build with the libvmaf filter;
+#     otherwise the PoC falls back to PSNR/SSIM automatically.
