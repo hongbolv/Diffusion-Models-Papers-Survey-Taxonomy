@@ -10,6 +10,11 @@ The deliverable is a single number per image and a curve: **BD-rate of ROI quali
 vs. a uniform-QP baseline**, plus a control against a classic (spectral-residual)
 saliency detector.
 
+> This PoC is the *image / software-encoder* slice of a broader program. The full
+> umbrella plan (adaptive generation steps, 2-D semantic×uncertainty QP, motion-field
+> ME priors, reference-frame management, four-quadrant orthogonality validation) is in
+> [`docs/generation-coding-codesign-poc-plan.md`](../docs/generation-coding-codesign-poc-plan.md).
+
 > This PoC deliberately stays in the **image / software-encoder** scope to validate
 > the *direction* (attention → QP → ROI quality gain). Video temporal consistency,
 > hardware codec IP, GOP/I-frame control and generation acceleration are explicitly
