@@ -1,0 +1,12 @@
+# Build / packaging
+build/
+dist/
+*.egg-info/
+__pycache__/
+*.pyc
+
+# PoC outputs
+*.hevc
+*.h264
+roi_report.json
+workdir/

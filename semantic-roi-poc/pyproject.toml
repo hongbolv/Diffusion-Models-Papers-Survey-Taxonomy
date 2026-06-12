@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "semantic-roi-poc"
+version = "0.1.0"
+description = "PoC: diffusion cross-attention saliency driving ROI-aware video/image coding"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.23",
+    "pillow>=9.0",
+]
+
+[project.optional-dependencies]
+# Real Stage-A attention extraction (needs a GPU in practice).
+diffusion = [
+    "torch",
+    "diffusers>=0.27",
+    "transformers",
+    "accelerate",
+]
+test = [
+    "pytest>=7",
+]
+
+[project.scripts]
+semantic-roi-poc = "semantic_roi_poc.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
